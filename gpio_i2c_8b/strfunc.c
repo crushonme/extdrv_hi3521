@@ -167,6 +167,17 @@ int  atoulx(char *str,unsigned int * pulValue)
     *pulValue=ulResult;
     return 0;
 }
-
-
-
+#if 0
+int strcmp(const char*str1,const char*str2)
+{
+	while(*str1==*str2)
+	{
+		if(*str1=='\0')
+			return 0;
+ 
+		str1++;
+		str2++;
+	}
+	return*str1-*str2;
+}
+#endif

@@ -14,7 +14,7 @@ int main(int argc , char* argv[])
 {
 	int fd = -1;
 	int ret =0;
-	int device_addr, reg_addr, reg_value, value;
+	unsigned int device_addr, reg_addr, reg_value, value;
 		
 	if(argc != 4)
     {

@@ -40,7 +40,7 @@
 //extern void sil9034_1080i50_init(void);
 //extern void sil9034_1080p30_init(void);
 
-unsigned int vdec_mode = VDEC_PAL_960;
+unsigned int vdec_mode = VDEC_PAL;
 unsigned int vdec_cnt = 0;
 
 unsigned int vdec_slave_addr[2] = {0x60, 0x62};
@@ -210,31 +210,8 @@ long vdec_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 			break;
 		case IOC_VDEC_4CH_VIDEO_SEQUENCE:
 			break;
-
-
-#if 0
-        case IOC_VIDEO_GET_VIDEO_MODE:
-		case IOC_VIDEO_SET_MOTION:
-        case IOC_VIDEO_GET_MOTION:
-		case IOC_VIDEO_SET_MOTION_EN:
-		case IOC_VIDEO_SET_MOTION_SENS:
-		case IOC_VIDEO_SET_MOTION_TRACE:
-        case IOC_VIDEO_GET_VIDEO_LOSS:
-		case IOC_VIDEO_GET_IMAGE_ADJUST:
-        case IOC_AUDIO_SET_SAMPLE_RATE:
-        case IOC_AUDIO_SET_AUDIO_PLAYBACK:
-        case IOC_AUDIO_SET_AUDIO_DA_VOLUME:
-		case IOC_AUDIO_SET_BRIGHTNESS:
-		case IOC_AUDIO_SET_CONTRAST:
-		case IOC_AUDIO_SET_HUE:
-		case IOC_AUDIO_SET_SATURATION:
-		case IOC_AUDIO_SET_SHARPNESS:
-		case IOC_AUDIO_SET_AUDIO_MUTE:
-		case IOC_AUDIO_SET_LIVE_CH:
-		case IOC_AUDIO_SET_PB_CH:
-#endif
 		default:
-            //printk("drv:invalid nc decoder ioctl cmd[%x]\n", cmd);
+            printk("drv:invalid nc decoder ioctl cmd[%x]\n", cmd);
 			break;
 	}
 	return 0;
@@ -266,39 +243,58 @@ static int __init vdec_module_init(void)
 		printk("ERROR: could not register NC Decoder devices:%#x \n",i);		
 	}
 	
-	printk("NVP1918 Test Driver \n");
+	printk("NVP1918 Driver init\n");
 
 	for(i=0;i<2;i++)
 	{
-		//gpio_i2c_write( NVP1918+i, 0xFF, 0x01);
-		//chip_id = gpio_i2c_read( NVP1918+i, 0xF4);
-		chip_id[i] = check_id(vdec_slave_addr[i]);
-		if( (chip_id[i] != NVP1918_R0 )  && 
-			(chip_id[i] != NVP1118B_R0 ) &&
-			(chip_id[i] != NVP1918_R1 )  &&
-			(chip_id[i] != NVP1118B_R1)  &&
-			(chip_id[i] != NVP1918_R2 )  &&
-			(chip_id[i] != NVP1118B_R2 ) &&
-			(chip_id[i] != NVP1914_R2 )  &&
-			(chip_id[i] != NVP1114B_R2 ) )
+		switch(check_id(vdec_slave_addr[i]))
 		{
-			printk("Blade Device ID Error... %x\n", chip_id[i]);
-		}
-		else
-		{
-			printk("Blade Device (0x%x) ID OK... %x\n", vdec_slave_addr[i], chip_id[i]);
-			vdec_cnt++;
+			case NVP1918_R0:
+				printk("Device[%d] ID is NVP1918\n",i);
+				break;
+			case NVP1118B_R0:
+				printk("Device[%d] ID is NVP1918\n",i);
+				break;
+			case NVP1914_R2:
+				printk("Device[%d] ID is NVP1918\n",i);
+				break;
+			case NVP1114B_R2:
+				printk("Device[%d] ID is NVP1918\n",i);
+				break;
+			default:
+				printk("Blade Device (0x%x) ID OK... %x\n", vdec_slave_addr[i], chip_id[i]);
+				vdec_cnt++;
 		}
 	}
 #ifdef NVP1118B
 	printk("NVP1118B Count = %x\n", vdec_cnt);
 	nvp1918_720h_nt();
 #else
-	printk("NVP1918 Count = %x\n", vdec_cnt);
-	nvp1918_960h_pal();
+	switch(vdec_mode)
+	{
+		case VDEC_NTSC:
+			nvp1918_720h_nt();
+			printk("work in NTSC mode\n");
+			break;
+		case VDEC_PAL:
+			nvp1918_720h_pal();
+			printk("work in PAL mode\n");
+			break;
+		case VDEC_NTSC_960:
+			nvp1918_960h_nt();
+			printk("work in 960 NTSC mode\n");
+			break;
+		case VDEC_PAL_960:
+			nvp1918_960h_pal();
+			printk("work in 960 PAL mode\n");
+			break;
+		default:
+			printk("Wrong mode.\n");
+			break;
+	}
+	
 #endif
-	//nvp1918_720h_pal();
-	//nvp1918_960h_nt();
+
 	return 0;
 }
 

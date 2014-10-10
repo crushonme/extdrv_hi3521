@@ -2,6 +2,8 @@
 #ifndef _GPIO_H
 #define _GPIO_H
 
+#define GPIO_MAX_BANK  11
+
 #define GPIO_BASE 0x20150000
 #define GPIO_BASE_BANK(bank) (GPIO_BASE + ((bank) << 16))
 #define GPIO_DIR(bank)              IO_ADDRESS(GPIO_BASE_BANK(bank) + 0x400)
@@ -50,6 +52,12 @@ enum gpio_dir
 	GPIO_DIR_INPUT,
 	GPIO_DIR_MAX
 };
+enum gpio_cmd
+{
+	GPIO_CMD_READ,
+	GPIO_CMD_WRITE,
+	GPIO_CMD_MAX
+};
 
 struct gpio_cfg {
 	int 			bank; /* always be 0 for Amba */
@@ -57,6 +65,9 @@ struct gpio_cfg {
 	enum gpio_dir 	dir;  /* GPIO_HW_DIR_INPUT/GPIO_HW_DIR_OUTPUT */
 	enum gpio_level val;  /* 0 = low level; 1 = high level */
 };
+int brd_gpio_dir(int bank, int pin, enum gpio_dir dir);
+int brd_gpio_wrt(int bank, int pin, enum gpio_level val);
+int brd_gpio_rd(int bank, int pin);
 
 #endif
 

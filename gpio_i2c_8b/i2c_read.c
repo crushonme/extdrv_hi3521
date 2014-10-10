@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <ctype.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
@@ -13,7 +14,7 @@ int main(int argc , char* argv[])
 {
 	int fd = -1;
 	int ret;
-	int device_addr, reg_addr, reg_addr_end,reg_value, value;
+	unsigned int device_addr, reg_addr, reg_addr_end,reg_value, value;
 	
 	
 	if ((argc != 3) && (argc != 4))
@@ -65,7 +66,7 @@ int main(int argc , char* argv[])
         for (cur_addr=reg_addr; cur_addr<reg_addr_end+1; cur_addr++)
         {
             value = ((device_addr&0xff)<<24) | ((cur_addr&0xff)<<16);
-            if("sccb_read" == argv[0])
+            if(strstr(argv[0], "sccb_read"))
                 ret = ioctl(fd, GPIO_SCCB_READ, &value);
             else
                 ret = ioctl(fd, GPIO_I2C_READ, &value);            

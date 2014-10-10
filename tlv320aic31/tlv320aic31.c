@@ -75,7 +75,7 @@
     printk(KERN_INFO "%s [%s ,%d]: " fmt "\n",DEV_NAME,__FUNCTION__,__LINE__,##args);\
 }while(0)
 
-unsigned int IIC_device_addr[CHIP_NUM] = {0x30};
+unsigned int IIC_device_addr[CHIP_NUM] = {0x30,0x30};
 
 static unsigned int  open_cnt = 0;	
 

@@ -213,6 +213,7 @@ byte siiReadSegmentBlockEDID(byte SlaveAddr, byte Segment, byte Offset, byte *Bu
         //i2c_stop_bit();
      
         //return 1;
+        return 0;
 }
 EXPORT_SYMBOL(siiReadSegmentBlockEDID);
 /* 
@@ -454,7 +455,7 @@ void gpio_i2c_write(unsigned char devaddress, unsigned char address, unsigned ch
 }
 
 //int gpioi2c_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
-int gpioi2c_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+long gpioi2c_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
     unsigned int val;
 	

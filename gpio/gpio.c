@@ -37,6 +37,7 @@ static struct gpio_cfg gpio_cfgs[] = {
 	{GPIO_CFG_END_SIGN}  /* End Flag */
 };
 
+EXPORT_SYMBOL(brd_gpio_dir);
 /*
  * Set GPIO direct
  * dir: GPIO_HW_DIR_INPUT/GPIO_HW_DIR_OUTPUT
@@ -69,6 +70,8 @@ int brd_gpio_dir(int bank, int pin, enum gpio_dir dir)
 	return 0;
 
 }
+
+EXPORT_SYMBOL(brd_gpio_wrt);
 
 /*
  * Set GPIO output level
@@ -103,6 +106,7 @@ int brd_gpio_wrt(int bank, int pin, enum gpio_level val)
 	return 0;
 }
 
+EXPORT_SYMBOL(brd_gpio_rd);
 /*
  * get GPIO input level
  * return: 0/1
@@ -124,6 +128,7 @@ int brd_gpio_rd(int bank, int pin)
 		return GPIO_LEVEL_LOW;
 
 }
+
 
 /*
  * set GPIO limited output level
@@ -186,7 +191,7 @@ int brd_gpio_init(void)
 
 	/* check gpio pin number */
 	if ((int)GPIO_MAX != max) {
-		GPIO_ERR("!!!Gpio define err, please check code!\n");
+		printk("!!!Gpio define err, please check code!\n");
 	}
 	
 	/* release some chip from reset */
@@ -197,4 +202,80 @@ int brd_gpio_init(void)
 	return 0;
 }
 
+int gpio_open(struct inode * inode, struct file * file)
+{
+    return 0;
+}
+int gpio_close(struct inode * inode, struct file * file)
+{
+    return 0;
+}
+
+long gpio_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+{
+    unsigned int val,bank,index;
+	short reg_val;
+	
+	switch(cmd)
+	{
+		case GPIO_CMD_READ:
+			val = *(unsigned int *)arg;
+			bank = (val&0xff000000)>>24;
+			index = (val&0xff0000)>>16;
+			brd_gpio_dir(bank,index,GPIO_DIR_INPUT);
+			reg_val = brd_gpio_rd(bank, index);
+			*(unsigned int *)arg = (val&0xffff0000)|reg_val;			
+			break;
+		
+		case GPIO_CMD_WRITE:
+			val = *(unsigned int *)arg;
+			bank = (val&0xff000000)>>24;
+			index = (val&0xff0000)>>16;
+			
+			reg_val = val&0xffff;
+			brd_gpio_wrt(bank, index, reg_val);
+			break;		
+
+		default:
+			return -1;
+	}
+    return 0;
+
+}
+
+static struct file_operations gpio_fops = {
+    .owner      = THIS_MODULE,
+    .unlocked_ioctl = gpio_ioctl,
+    .open       = gpio_open,
+    .release    = gpio_close
+};
+
+
+static struct miscdevice gpio_dev = {
+   .minor		= MISC_DYNAMIC_MINOR,
+   .name		= "gpio",
+   .fops  = &gpio_fops,
+};
+
+static int __init gpio_init(void)
+{
+    int ret;
+    //unsigned int reg;
+    
+    ret = misc_register(&gpio_dev);
+    if(0 != ret)
+    	return -1;
+        
+    return 0;    
+}
+
+static void __exit gpio_exit(void)
+{
+    misc_deregister(&gpio_dev);
+}
+
+
+module_init(gpio_init);
+module_exit(gpio_exit);
+MODULE_LICENSE("GPL");
 
