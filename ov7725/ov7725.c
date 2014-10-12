@@ -172,7 +172,7 @@ static void set_vga(void)
     ov7725_write(SCCB_OV7725_ADDR, HOUTSIZE, 0xa0);
     ov7725_write(SCCB_OV7725_ADDR, VOUTSIZE, 0xf0);
     ov7725_write(SCCB_OV7725_ADDR, EXHCH, 0x00);
-//    ov7725_write(SCCB_OV7725_ADDR, CLKRC, 0x01);//00/01/03/07 for 60/30/15/7.5fps
+    ov7725_write(SCCB_OV7725_ADDR, CLKRC, 0x00);//00/01/03/07 for 60/30/15/7.5fps
 }
 
 static void set_qvga(void)
