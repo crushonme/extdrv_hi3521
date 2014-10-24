@@ -44,7 +44,12 @@ int main(int argc , char* argv[])
     {
         printf("device_addr:0x%2x; reg_addr:0x%2x.\n", device_addr, reg_addr);
         value = ((device_addr&0xff)<<24) | ((reg_addr&0xff)<<16);        
-        ret = ioctl(fd, GPIO_I2C_READ, &value);        
+        if(strstr(argv[0], "sccb_read"))
+            	{printf("sccb read.\n");
+                ret = ioctl(fd, GPIO_SCCB_READ, &value);}
+            else
+            {printf("i2c read\n");
+                ret = ioctl(fd, GPIO_I2C_READ, &value);}        
         reg_value = value&0xff;        
         printf("0x%2x\n", reg_value);
     }
@@ -67,9 +72,11 @@ int main(int argc , char* argv[])
         {
             value = ((device_addr&0xff)<<24) | ((cur_addr&0xff)<<16);
             if(strstr(argv[0], "sccb_read"))
-                ret = ioctl(fd, GPIO_SCCB_READ, &value);
+            	{printf("sccb read.\n");
+                ret = ioctl(fd, GPIO_SCCB_READ, &value);}
             else
-                ret = ioctl(fd, GPIO_I2C_READ, &value);            
+            {printf("i2c read\n");
+                ret = ioctl(fd, GPIO_I2C_READ, &value);}         
             reg_value = value&0xff;
             printf("0x%x 0x%x\n", cur_addr, reg_value);
         }
